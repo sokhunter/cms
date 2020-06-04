@@ -14,6 +14,11 @@ class PostsController extends Controller
      */
     public function index()
     {
+        //Fechas con Illuminate\Support\Carbon
+        // $now = now();
+        // echo $now;
+        // echo '<br>';
+        // echo $now->yesterday();
         $posts = Post::all();
         return view('posts.index', compact('posts'));
     }
@@ -37,8 +42,20 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
+        $input = $request->all();
+        if($file = $request->file('file')){
+            $nameFile = $file->getClientOriginalName();
+            // Guardar el archivo con el nombre "$name" en el directorio "images" dentro de la carpeta public
+            $file->move('images', $nameFile);
+            $input['path'] = $nameFile;
+        }
+        // $nameFile = $file->getClientSize();
         
-        Post::create($request->all());
+        $this->validate($request, [
+            'title' => 'required|max:100',
+            'content' => 'required'
+        ]);
+        Post::create($input);
         return redirect('/posts');
     }
 
